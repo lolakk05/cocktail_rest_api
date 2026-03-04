@@ -1,0 +1,78 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum Category {
+  ALCOHOLIC
+  NON_ALCOHOLIC
+}
+
+enum Unit {
+  ML
+  G
+  PIECE
+  TEASPOON
+}
+
+model User {
+  userId Int @id @default(autoincrement()) @map("user_id")
+  login String
+  email String
+  password String
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  cocktails Cocktail[]
+
+  @@map("user")
+}
+
+model Cocktail {
+  cocktailId Int @id @default(autoincrement()) @map("cocktail_id")
+  name String
+  category Category
+  recipe String
+  createdBy Int? @map("created_by")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  user User? @relation(fields: [createdBy], references: [userId])
+  ratios Ratio[]
+
+  @@map("cocktail")
+}
+
+model Ingredient {
+  ingredientId Int @id @default(autoincrement()) @map("ingredient_id")
+  name String
+  description String?
+  isAlcoholic Boolean @map("is_alcoholic")
+  imageUrl String? @map("image_url")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  ratios Ratio[]
+
+  @@map("ingredient")
+}
+
+model Ratio {
+  ratioId Int @id @default(autoincrement()) @map("ratio_id")
+  cocktailId Int @map("cocktail_id")
+  ingredientId Int @map("ingredient_id")
+  amount Decimal @db.Decimal
+  unit Unit
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  cocktail Cocktail @relation(fields: [cocktailId], references: [cocktailId], onDelete: Cascade)
+  ingredient Ingredient @relation(fields: [ingredientId], references: [ingredientId], onDelete: Cascade)
+
+  @@unique([cocktailId, ingredientId])
+  @@map("ratio")
+}
