@@ -4,4 +4,7 @@ async function main() {
   await seedDatabase();
 }
 
-void main();
+main().catch((error) => {
+    console.error("Error while running database seeds:", error);
+    process.exitCode = 1;
+});
