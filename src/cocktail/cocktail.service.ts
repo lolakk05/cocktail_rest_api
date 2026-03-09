@@ -2,6 +2,8 @@ import { Injectable } from '@nestjs/common';
 import { CreateCocktailDto } from './dto/create-cocktail.dto';
 import { UpdateCocktailDto } from './dto/update-cocktail.dto';
 import { DatabaseService } from '../database/database.service';
+import { PaginationDto } from '../pagination/pagination.dto';
+import { DEFAULT_PAGE_SIZE } from '../pagination/utils/constants';
 
 @Injectable()
 export class CocktailService {
@@ -34,8 +36,10 @@ export class CocktailService {
     });
   }
 
-  findAll() {
+  findAll(paginationDto: PaginationDto) {
     return this.database.cocktail.findMany({
+      skip: paginationDto.skip,
+      take: paginationDto.limit ?? DEFAULT_PAGE_SIZE,
       include: {
         ratios: {
           include: {
