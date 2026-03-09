@@ -2,6 +2,8 @@ import { Injectable } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { DatabaseService } from '../database/database.service';
+import { PaginationDto } from '../pagination/pagination.dto';
+import { DEFAULT_PAGE_SIZE } from '../pagination/utils/constants';
 
 @Injectable()
 export class UserService {
@@ -15,8 +17,11 @@ export class UserService {
     });
   }
 
-  findAll() {
-    return this.database.user.findMany();
+  findAll(paginationDto: PaginationDto) {
+    return this.database.user.findMany({
+      skip: paginationDto.skip,
+      take: paginationDto.limit ?? DEFAULT_PAGE_SIZE,
+    });
   }
 
   findOne(id: number) {

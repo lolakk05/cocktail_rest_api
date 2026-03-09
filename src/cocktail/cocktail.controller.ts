@@ -6,10 +6,12 @@ import {
   Patch,
   Param,
   Delete,
+  Query,
 } from '@nestjs/common';
 import { CocktailService } from './cocktail.service';
 import { CreateCocktailDto } from './dto/create-cocktail.dto';
 import { UpdateCocktailDto } from './dto/update-cocktail.dto';
+import { PaginationDto } from '../pagination/pagination.dto';
 
 @Controller('cocktails')
 export class CocktailController {
@@ -21,8 +23,8 @@ export class CocktailController {
   }
 
   @Get()
-  findAll() {
-    return this.cocktailService.findAll();
+  findAll(@Query() paginationDto: PaginationDto) {
+    return this.cocktailService.findAll(paginationDto);
   }
 
   @Get(':id')
