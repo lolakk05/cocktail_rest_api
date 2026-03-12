@@ -12,26 +12,76 @@ import { CocktailService } from './cocktail.service';
 import { CreateCocktailDto } from './dto/create-cocktail.dto';
 import { UpdateCocktailDto } from './dto/update-cocktail.dto';
 import { PaginationDto } from '../pagination/pagination.dto';
+import {
+  ApiBadRequestResponse,
+  ApiBody,
+  ApiCreatedResponse,
+  ApiNotFoundResponse,
+  ApiOkResponse,
+  ApiOperation,
+  ApiTags,
+} from '@nestjs/swagger';
 
+@ApiTags('cocktails')
 @Controller('cocktails')
 export class CocktailController {
   constructor(private readonly cocktailService: CocktailService) {}
 
   @Post()
+  @ApiOperation({
+    summary: 'Create a new cocktail',
+    description: 'Creates single cocktail item',
+  })
+  @ApiCreatedResponse({
+    description: 'Cocktail item created',
+  })
+  @ApiBadRequestResponse({
+    description: 'Validation failed (e.g. missing value, wrong type)',
+  })
   create(@Body() createCocktailDto: CreateCocktailDto) {
     return this.cocktailService.create(createCocktailDto);
   }
 
   @Get()
+  @ApiOperation({
+    summary: 'Get all the cocktails',
+    description: 'Returns all the cocktails',
+  })
+  @ApiOkResponse({
+    description: 'Cocktails succesfully found',
+  })
   findAll(@Query() paginationDto: PaginationDto) {
     return this.cocktailService.findAll(paginationDto);
   }
 
+  @ApiOperation({
+    summary: 'Get one cocktail with specified id',
+    description: 'Get cocktail with id specified in path',
+  })
+  @ApiOkResponse({
+    description: 'Cocktails with specified id succesfully found',
+  })
+  @ApiNotFoundResponse({
+    description: 'Cocktail with specified id not found',
+  })
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.cocktailService.findOne(+id);
   }
 
+  @ApiOperation({
+    summary: 'Update data of cocktail',
+    description: 'Update data of cocktail specified in path',
+  })
+  @ApiOkResponse({
+    description: 'Cocktail succesfully updated',
+  })
+  @ApiNotFoundResponse({
+    description: 'Cocktail with specified id not found',
+  })
+  @ApiBadRequestResponse({
+    description: 'Validation failed (e.g. wrong type)',
+  })
   @Patch(':id')
   update(
     @Param('id') id: string,
@@ -40,6 +90,19 @@ export class CocktailController {
     return this.cocktailService.update(+id, updateCocktailDto);
   }
 
+  @ApiOperation({
+    summary: 'Delete one cocktail',
+    description: 'Delete data of cocktail specified in path',
+  })
+  @ApiOkResponse({
+    description: 'Cocktail succesfully deleted',
+  })
+  @ApiNotFoundResponse({
+    description: 'Cocktail not found',
+  })
+  @ApiBadRequestResponse({
+    description: 'Validation failed (e.g. wrong type)',
+  })
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.cocktailService.remove(+id);
