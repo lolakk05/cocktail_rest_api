@@ -4,6 +4,7 @@ import { UpdateIngredientDto } from './dto/update-ingredient.dto';
 import { DatabaseService } from '../database/database.service';
 import { PaginationDto } from '../pagination/pagination.dto';
 import { DEFAULT_PAGE_SIZE } from '../pagination/utils/constants';
+import { IngredientFilterDto } from '../filters/ingredient-filter.dto';
 
 @Injectable()
 export class IngredientService {
@@ -17,10 +18,17 @@ export class IngredientService {
     });
   }
 
-  findAll(paginationDto: PaginationDto) {
+  findAll(filters: IngredientFilterDto) {
+    const { page = 1, limit = DEFAULT_PAGE_SIZE } = filters;
     return this.database.ingredient.findMany({
-      skip: paginationDto.skip,
-      take: paginationDto.limit ?? DEFAULT_PAGE_SIZE,
+      skip: (page - 1) * limit,
+      take: filters.limit ?? DEFAULT_PAGE_SIZE,
+      where: {
+        ...(filters.name && {
+          name: { contains: filters.name, mode: 'insensitive' },
+        }),
+        ...(filters.isAlcoholic && { isAlcoholic: filters.isAlcoholic }),
+      },
     });
   }
 

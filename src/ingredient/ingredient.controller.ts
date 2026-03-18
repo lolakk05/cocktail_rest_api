@@ -19,6 +19,7 @@ import {
   ApiOkResponse,
   ApiOperation,
 } from '@nestjs/swagger';
+import { IngredientFilterDto } from '../filters/ingredient-filter.dto';
 
 @Controller('ingredients')
 export class IngredientController {
@@ -46,8 +47,8 @@ export class IngredientController {
     description: 'Ingredients succesfully found',
   })
   @Get()
-  findAll(@Query() paginationDto: PaginationDto) {
-    return this.ingredientService.findAll(paginationDto);
+  findAll(@Query() filterDto: IngredientFilterDto) {
+    return this.ingredientService.findAll(filterDto);
   }
 
   @ApiOperation({
