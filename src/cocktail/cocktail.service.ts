@@ -2,8 +2,8 @@ import { Injectable } from '@nestjs/common';
 import { CreateCocktailDto } from './dto/create-cocktail.dto';
 import { UpdateCocktailDto } from './dto/update-cocktail.dto';
 import { DatabaseService } from '../database/database.service';
-import { PaginationDto } from '../pagination/pagination.dto';
 import { DEFAULT_PAGE_SIZE } from '../pagination/utils/constants';
+import { CocktailFilterDto } from '../filters/cocktail-filter.dto';
 
 @Injectable()
 export class CocktailService {
@@ -36,10 +36,33 @@ export class CocktailService {
     });
   }
 
-  findAll(paginationDto: PaginationDto) {
+  findAll(filters: CocktailFilterDto) {
+    const { page = 1, limit = DEFAULT_PAGE_SIZE } = filters;
     return this.database.cocktail.findMany({
-      skip: paginationDto.skip,
-      take: paginationDto.limit ?? DEFAULT_PAGE_SIZE,
+      skip: (page - 1) * limit,
+      take: filters.limit ?? DEFAULT_PAGE_SIZE,
+      where: {
+        ...(filters.category && { category: filters.category }),
+        ...(filters.name && {
+          name: { contains: filters.name, mode: 'insensitive' },
+        }),
+
+        ...(filters.ingredientName && {
+          ratios: {
+            some: {
+              ingredient: {
+                name: {
+                  contains: filters.ingredientName,
+                  mode: 'insensitive',
+                },
+              },
+            },
+          },
+        }),
+      },
+      orderBy: {
+        [filters.orderBy as string]: filters.order,
+      },
       include: {
         ratios: {
           include: {

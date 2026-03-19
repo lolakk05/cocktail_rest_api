@@ -19,6 +19,7 @@ import {
   ApiOkResponse,
   ApiOperation,
 } from '@nestjs/swagger';
+import { UserFilterDto } from '../filters/user-filter.dto';
 
 @Controller('users')
 export class UserController {
@@ -47,8 +48,8 @@ export class UserController {
   @ApiOkResponse({
     description: 'Users succesfully found',
   })
-  findAll(@Query() paginationDto: PaginationDto) {
-    return this.userService.findAll(paginationDto);
+  findAll(@Query() filterDto: UserFilterDto) {
+    return this.userService.findAll(filterDto);
   }
 
   @Get(':id')

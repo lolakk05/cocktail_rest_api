@@ -4,6 +4,7 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { DatabaseService } from '../database/database.service';
 import { PaginationDto } from '../pagination/pagination.dto';
 import { DEFAULT_PAGE_SIZE } from '../pagination/utils/constants';
+import { UserFilterDto } from '../filters/user-filter.dto';
 
 @Injectable()
 export class UserService {
@@ -17,10 +18,19 @@ export class UserService {
     });
   }
 
-  findAll(paginationDto: PaginationDto) {
+  findAll(filters: UserFilterDto) {
+    const { page = 1, limit = DEFAULT_PAGE_SIZE } = filters;
     return this.database.user.findMany({
-      skip: paginationDto.skip,
-      take: paginationDto.limit ?? DEFAULT_PAGE_SIZE,
+      skip: (page - 1) * limit,
+      take: filters.limit ?? DEFAULT_PAGE_SIZE,
+      where: {
+        ...(filters.login && {
+          login: { contains: filters.login, mode: 'insensitive' },
+        }),
+        ...(filters.email && {
+          email: { contains: filters.email, mode: 'insensitive' },
+        }),
+      },
     });
   }
 

@@ -21,6 +21,7 @@ import {
   ApiOperation,
   ApiTags,
 } from '@nestjs/swagger';
+import { CocktailFilterDto } from '../filters/cocktail-filter.dto';
 
 @ApiTags('cocktails')
 @Controller('cocktails')
@@ -50,8 +51,8 @@ export class CocktailController {
   @ApiOkResponse({
     description: 'Cocktails succesfully found',
   })
-  findAll(@Query() paginationDto: PaginationDto) {
-    return this.cocktailService.findAll(paginationDto);
+  findAll(@Query() filterDto: CocktailFilterDto) {
+    return this.cocktailService.findAll(filterDto);
   }
 
   @ApiOperation({
