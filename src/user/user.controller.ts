@@ -1,25 +1,29 @@
 import {
-    Controller,
-    Get,
-    Post,
-    Body,
-    Patch,
-    Param,
-    Delete,
-    Query,
-    UseGuards,
-    Req, UseInterceptors, ClassSerializerInterceptor,
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  Query,
+  UseGuards,
+  Req,
+  UseInterceptors,
+  ClassSerializerInterceptor,
+  NotFoundException,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import {
-    ApiBadRequestResponse,
-    ApiBearerAuth,
-    ApiCreatedResponse,
-    ApiNotFoundResponse,
-    ApiOkResponse,
-    ApiOperation, ApiTags,
+  ApiBadRequestResponse,
+  ApiBearerAuth,
+  ApiCreatedResponse,
+  ApiNotFoundResponse,
+  ApiOkResponse,
+  ApiOperation,
+  ApiTags,
 } from '@nestjs/swagger';
 import { UserFilterDto } from '../filters/user-filter.dto';
 import { AuthGuard, type RequestWithUser } from '../auth/auth.guard';
@@ -27,7 +31,7 @@ import { RolesGuard } from '../auth/roles.guard';
 import { Roles } from '../auth/roles.decorator';
 import { Role } from '@prisma/client';
 import { UpdateUserAdminDto } from './dto/update-user-admin.dto';
-import {UserEntity} from "./entities/user.entity";
+import { UserEntity } from './entities/user.entity';
 
 @Controller('users')
 @ApiTags('users')
@@ -83,7 +87,7 @@ export class UserController {
   @UseGuards(AuthGuard)
   async findOne(@Param('id') id: string) {
     const user = await this.userService.findOne(+id);
-    if (!user) throw new Error('User not found');
+    if (!user) throw new NotFoundException('User not found');
     return new UserEntity(user);
   }
 

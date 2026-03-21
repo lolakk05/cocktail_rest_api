@@ -7,7 +7,7 @@ export class RegisterDto {
     description: 'Login of user',
   })
   @IsString()
-  @MinLength(3, { message: 'Login need to have atleast 3 characters' })
+  @MinLength(3, { message: 'Login need to have at least 3 characters' })
   login!: string;
 
   @ApiProperty({
