@@ -9,6 +9,8 @@ import {
   Query,
   UseGuards,
   Req,
+  UseInterceptors,
+  UploadedFile,
 } from '@nestjs/common';
 import { IngredientService } from './ingredient.service';
 import { CreateIngredientDto } from './dto/create-ingredient.dto';
@@ -16,6 +18,7 @@ import { UpdateIngredientDto } from './dto/update-ingredient.dto';
 import {
   ApiBadRequestResponse,
   ApiBearerAuth,
+  ApiConsumes,
   ApiCreatedResponse,
   ApiNotFoundResponse,
   ApiOkResponse,
@@ -26,12 +29,16 @@ import { AuthGuard, type RequestWithUser } from '../auth/auth.guard';
 import { Roles } from '../auth/roles.decorator';
 import { Role } from '@prisma/client';
 import { RolesGuard } from '../auth/roles.guard';
+import { diskStorage } from 'multer';
+import { extname } from 'path';
+import { FileInterceptor } from '@nestjs/platform-express';
 
 @Controller('ingredients')
 export class IngredientController {
   constructor(private readonly ingredientService: IngredientService) {}
 
   @Post()
+  @ApiConsumes('multipart/form-data')
   @ApiOperation({
     summary: 'Create a new ingredient',
     description: 'Creates single ingredient',
@@ -44,7 +51,27 @@ export class IngredientController {
   })
   @ApiBearerAuth()
   @UseGuards(AuthGuard)
-  create(@Body() createIngredientDto: CreateIngredientDto) {
+  @UseInterceptors(
+    FileInterceptor('imageUrl', {
+      storage: diskStorage({
+        destination: './uploads/ingredients',
+        filename: (req, file, cb) => {
+          const randomName = Array(32)
+            .fill(null)
+            .map(() => Math.round(Math.random() * 16).toString(16))
+            .join('');
+          cb(null, `${randomName}${extname(file.originalname)}`);
+        },
+      }),
+    }),
+  )
+  create(
+    @Body() createIngredientDto: CreateIngredientDto,
+    @UploadedFile() file: Express.Multer.File,
+  ) {
+    if (file) {
+      createIngredientDto.imageUrl = `/uploads/ingredients/${file.filename}`;
+    }
     return this.ingredientService.create(createIngredientDto);
   }
 

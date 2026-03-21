@@ -9,6 +9,7 @@ import {
   Query,
   UseGuards,
   Req,
+  UseInterceptors,
 } from '@nestjs/common';
 import { CocktailService } from './cocktail.service';
 import { CreateCocktailDto } from './dto/create-cocktail.dto';
@@ -16,6 +17,7 @@ import { UpdateCocktailDto } from './dto/update-cocktail.dto';
 import {
   ApiBadRequestResponse,
   ApiBearerAuth,
+  ApiConsumes,
   ApiCreatedResponse,
   ApiNotFoundResponse,
   ApiOkResponse,
@@ -24,6 +26,9 @@ import {
 } from '@nestjs/swagger';
 import { CocktailFilterDto } from '../filters/cocktail-filter.dto';
 import { AuthGuard, type RequestWithUser } from '../auth/auth.guard';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { diskStorage } from 'multer';
+import { extname } from 'path';
 
 @ApiTags('cocktails')
 @Controller('cocktails')

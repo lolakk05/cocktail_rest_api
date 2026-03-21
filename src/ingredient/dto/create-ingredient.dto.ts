@@ -1,5 +1,6 @@
 import { IsBoolean, IsNotEmpty, IsOptional, IsString } from 'class-validator';
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { Type } from 'class-transformer';
 
 export class CreateIngredientDto {
   @ApiProperty({
@@ -24,13 +25,13 @@ export class CreateIngredientDto {
   })
   @IsBoolean({ message: 'isAlcoholic must be a boolean value true of false' })
   @IsNotEmpty()
+  @Type(() => Boolean)
   isAlcoholic: boolean;
 
-  @ApiProperty({
-    example: 'https://example.com/image.jpg',
-    description: 'Url of image of ingredient',
+  @ApiPropertyOptional({
+    type: 'string',
+    format: 'binary',
   })
-  @IsString({ message: 'imageUrl must be a string' })
   @IsOptional()
   imageUrl: string;
 }
