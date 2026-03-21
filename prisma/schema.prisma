@@ -19,11 +19,17 @@ enum Unit {
   TEASPOON
 }
 
+enum Role {
+  USER
+  ADMIN
+}
+
 model User {
   userId Int @id @default(autoincrement()) @map("user_id")
-  login String
-  email String
+  login String @unique
+  email String @unique
   password String
+  role Role @default(USER)
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 

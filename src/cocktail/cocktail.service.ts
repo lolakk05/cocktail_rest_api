@@ -1,21 +1,26 @@
-import { Injectable } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { CreateCocktailDto } from './dto/create-cocktail.dto';
 import { UpdateCocktailDto } from './dto/update-cocktail.dto';
 import { DatabaseService } from '../database/database.service';
 import { DEFAULT_PAGE_SIZE } from '../pagination/utils/constants';
 import { CocktailFilterDto } from '../filters/cocktail-filter.dto';
+import { JwtPayload } from '../auth/auth.guard';
 
 @Injectable()
 export class CocktailService {
   constructor(private database: DatabaseService) {}
 
-  create(createCocktailDto: CreateCocktailDto) {
-    return this.database.cocktail.create({
+  async create(createCocktailDto: CreateCocktailDto, userId: number) {
+    return await this.database.cocktail.create({
       data: {
         name: createCocktailDto.name,
         category: createCocktailDto.category,
         recipe: createCocktailDto.recipe,
-
+        createdBy: userId,
         ratios: {
           create: createCocktailDto.ratios.map((ratio) => ({
             amount: ratio.amount,
@@ -69,6 +74,11 @@ export class CocktailService {
             ingredient: true,
           },
         },
+        user: {
+          select: {
+            login: true,
+          },
+        },
       },
     });
   }
@@ -82,6 +92,11 @@ export class CocktailService {
         ratios: {
           include: {
             ingredient: true,
+          },
+        },
+        user: {
+          select: {
+            login: true,
           },
         },
       },
@@ -119,7 +134,28 @@ export class CocktailService {
     });
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} cocktail`;
+  async remove(id: number, user: JwtPayload) {
+    const cocktail = await this.database.cocktail.findUnique({
+      where: {
+        cocktailId: id,
+      },
+    });
+
+    if (!cocktail) {
+      throw new NotFoundException('No cocktail with this id');
+    }
+
+    const isAdmin = user.role === 'ADMIN';
+    const isOwner = cocktail.createdBy === user.id;
+
+    if (!isAdmin && !isOwner) {
+      throw new UnauthorizedException('U can delete only your own cocktails');
+    }
+
+    return this.database.cocktail.delete({
+      where: {
+        cocktailId: id,
+      },
+    });
   }
 }

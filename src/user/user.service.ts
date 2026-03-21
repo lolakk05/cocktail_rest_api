@@ -42,6 +42,14 @@ export class UserService {
     });
   }
 
+  findOneByLogin(login: string) {
+    return this.database.user.findUnique({
+      where: {
+        login: login,
+      },
+    });
+  }
+
   update(id: number, updateUserDto: UpdateUserDto) {
     return this.database.user.update({
       where: {

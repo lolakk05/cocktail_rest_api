@@ -7,19 +7,25 @@ import {
   Param,
   Delete,
   Query,
+  UseGuards,
+  Req,
 } from '@nestjs/common';
 import { IngredientService } from './ingredient.service';
 import { CreateIngredientDto } from './dto/create-ingredient.dto';
 import { UpdateIngredientDto } from './dto/update-ingredient.dto';
-import { PaginationDto } from '../pagination/pagination.dto';
 import {
   ApiBadRequestResponse,
+  ApiBearerAuth,
   ApiCreatedResponse,
   ApiNotFoundResponse,
   ApiOkResponse,
   ApiOperation,
 } from '@nestjs/swagger';
 import { IngredientFilterDto } from '../filters/ingredient-filter.dto';
+import { AuthGuard, type RequestWithUser } from '../auth/auth.guard';
+import { Roles } from '../auth/roles.decorator';
+import { Role } from '@prisma/client';
+import { RolesGuard } from '../auth/roles.guard';
 
 @Controller('ingredients')
 export class IngredientController {
@@ -36,9 +42,12 @@ export class IngredientController {
   @ApiBadRequestResponse({
     description: 'Validation failed (e.g. missing value, wrong type)',
   })
+  @ApiBearerAuth()
+  @UseGuards(AuthGuard)
   create(@Body() createIngredientDto: CreateIngredientDto) {
     return this.ingredientService.create(createIngredientDto);
   }
+
   @ApiOperation({
     summary: 'Get all the ingredients',
     description: 'Returns all the ingredients',
@@ -65,6 +74,7 @@ export class IngredientController {
   findOne(@Param('id') id: string) {
     return this.ingredientService.findOne(+id);
   }
+
   @ApiOperation({
     summary: 'Update data of ingredient',
     description: 'Update data of ingredient specified in path',
@@ -79,6 +89,8 @@ export class IngredientController {
     description: 'Validation failed (e.g. wrong type)',
   })
   @Patch(':id')
+  @ApiBearerAuth()
+  @UseGuards(AuthGuard)
   update(
     @Param('id') id: string,
     @Body() updateIngredientDto: UpdateIngredientDto,
@@ -99,6 +111,9 @@ export class IngredientController {
   @ApiBadRequestResponse({
     description: 'Validation failed (e.g. wrong type)',
   })
+  @ApiBearerAuth()
+  @UseGuards(AuthGuard, RolesGuard)
+  @Roles(Role.ADMIN)
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.ingredientService.remove(+id);

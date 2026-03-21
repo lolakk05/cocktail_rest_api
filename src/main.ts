@@ -11,6 +11,7 @@ async function bootstrap() {
     .setTitle('Cocktail REST API')
     .setDescription('Documentation of API to manage cocktails')
     .setVersion('1.0')
+    .addBearerAuth()
     .build();
 
   const document = SwaggerModule.createDocument(app, config);

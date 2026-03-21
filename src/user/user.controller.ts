@@ -1,27 +1,37 @@
 import {
-  Controller,
-  Get,
-  Post,
-  Body,
-  Patch,
-  Param,
-  Delete,
-  Query,
+    Controller,
+    Get,
+    Post,
+    Body,
+    Patch,
+    Param,
+    Delete,
+    Query,
+    UseGuards,
+    Req, UseInterceptors, ClassSerializerInterceptor,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { PaginationDto } from '../pagination/pagination.dto';
 import {
-  ApiBadRequestResponse,
-  ApiCreatedResponse,
-  ApiNotFoundResponse,
-  ApiOkResponse,
-  ApiOperation,
+    ApiBadRequestResponse,
+    ApiBearerAuth,
+    ApiCreatedResponse,
+    ApiNotFoundResponse,
+    ApiOkResponse,
+    ApiOperation, ApiTags,
 } from '@nestjs/swagger';
 import { UserFilterDto } from '../filters/user-filter.dto';
+import { AuthGuard, type RequestWithUser } from '../auth/auth.guard';
+import { RolesGuard } from '../auth/roles.guard';
+import { Roles } from '../auth/roles.decorator';
+import { Role } from '@prisma/client';
+import { UpdateUserAdminDto } from './dto/update-user-admin.dto';
+import {UserEntity} from "./entities/user.entity";
 
 @Controller('users')
+@ApiTags('users')
+@UseInterceptors(ClassSerializerInterceptor)
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
@@ -36,8 +46,11 @@ export class UserController {
   @ApiBadRequestResponse({
     description: 'Validation failed (e.g. missing value, wrong type)',
   })
-  create(@Body() createUserDto: CreateUserDto) {
-    return this.userService.create(createUserDto);
+  @ApiBearerAuth()
+  @UseGuards(AuthGuard, RolesGuard)
+  @Roles(Role.ADMIN)
+  async create(@Body() createUserDto: CreateUserDto) {
+    return new UserEntity(await this.userService.create(createUserDto));
   }
 
   @Get()
@@ -48,8 +61,11 @@ export class UserController {
   @ApiOkResponse({
     description: 'Users succesfully found',
   })
-  findAll(@Query() filterDto: UserFilterDto) {
-    return this.userService.findAll(filterDto);
+  @ApiBearerAuth()
+  @UseGuards(AuthGuard)
+  async findAll(@Query() filterDto: UserFilterDto) {
+    const users = await this.userService.findAll(filterDto);
+    return users.map((user) => new UserEntity(user));
   }
 
   @Get(':id')
@@ -63,8 +79,25 @@ export class UserController {
   @ApiNotFoundResponse({
     description: 'User not found',
   })
-  findOne(@Param('id') id: string) {
-    return this.userService.findOne(+id);
+  @ApiBearerAuth()
+  @UseGuards(AuthGuard)
+  async findOne(@Param('id') id: string) {
+    const user = await this.userService.findOne(+id);
+    if (!user) throw new Error('User not found');
+    return new UserEntity(user);
+  }
+
+  @ApiOperation({ summary: 'Update own profile' })
+  @ApiBearerAuth()
+  @UseGuards(AuthGuard)
+  @Patch('me')
+  async updateMe(
+    @Req() req: RequestWithUser,
+    @Body() updateUserDto: UpdateUserDto,
+  ) {
+    return new UserEntity(
+      await this.userService.update(req.user.id, updateUserDto),
+    );
   }
 
   @Patch(':id')
@@ -81,8 +114,22 @@ export class UserController {
   @ApiBadRequestResponse({
     description: 'Validation failed (e.g. wrong type)',
   })
-  update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
-    return this.userService.update(+id, updateUserDto);
+  @ApiBearerAuth()
+  @UseGuards(AuthGuard, RolesGuard)
+  @Roles(Role.ADMIN)
+  async update(
+    @Param('id') id: string,
+    @Body() updateUserDto: UpdateUserAdminDto,
+  ) {
+    return new UserEntity(await this.userService.update(+id, updateUserDto));
+  }
+
+  @ApiOperation({ summary: 'Delete own profile' })
+  @ApiBearerAuth()
+  @UseGuards(AuthGuard)
+  @Delete('me')
+  async removeMe(@Req() req: RequestWithUser) {
+    return new UserEntity(await this.userService.remove(req.user.id));
   }
 
   @ApiOperation({
@@ -98,8 +145,11 @@ export class UserController {
   @ApiBadRequestResponse({
     description: 'Validation failed (e.g. wrong type)',
   })
+  @ApiBearerAuth()
+  @UseGuards(AuthGuard, RolesGuard)
+  @Roles(Role.ADMIN)
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.userService.remove(+id);
+  async remove(@Param('id') id: string) {
+    return new UserEntity(await this.userService.remove(+id));
   }
 }
