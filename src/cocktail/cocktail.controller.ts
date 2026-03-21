@@ -7,14 +7,15 @@ import {
   Param,
   Delete,
   Query,
+  UseGuards,
+  Req,
 } from '@nestjs/common';
 import { CocktailService } from './cocktail.service';
 import { CreateCocktailDto } from './dto/create-cocktail.dto';
 import { UpdateCocktailDto } from './dto/update-cocktail.dto';
-import { PaginationDto } from '../pagination/pagination.dto';
 import {
   ApiBadRequestResponse,
-  ApiBody,
+  ApiBearerAuth,
   ApiCreatedResponse,
   ApiNotFoundResponse,
   ApiOkResponse,
@@ -22,6 +23,7 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { CocktailFilterDto } from '../filters/cocktail-filter.dto';
+import { AuthGuard, type RequestWithUser } from '../auth/auth.guard';
 
 @ApiTags('cocktails')
 @Controller('cocktails')
@@ -39,8 +41,13 @@ export class CocktailController {
   @ApiBadRequestResponse({
     description: 'Validation failed (e.g. missing value, wrong type)',
   })
-  create(@Body() createCocktailDto: CreateCocktailDto) {
-    return this.cocktailService.create(createCocktailDto);
+  @ApiBearerAuth()
+  @UseGuards(AuthGuard)
+  create(
+    @Body() createCocktailDto: CreateCocktailDto,
+    @Req() req: RequestWithUser,
+  ) {
+    return this.cocktailService.create(createCocktailDto, req.user.id);
   }
 
   @Get()
@@ -83,6 +90,8 @@ export class CocktailController {
   @ApiBadRequestResponse({
     description: 'Validation failed (e.g. wrong type)',
   })
+  @ApiBearerAuth()
+  @UseGuards(AuthGuard)
   @Patch(':id')
   update(
     @Param('id') id: string,
@@ -104,8 +113,10 @@ export class CocktailController {
   @ApiBadRequestResponse({
     description: 'Validation failed (e.g. wrong type)',
   })
+  @ApiBearerAuth()
+  @UseGuards(AuthGuard)
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.cocktailService.remove(+id);
+  remove(@Param('id') id: string, @Req() req: RequestWithUser) {
+    return this.cocktailService.remove(+id, req.user);
   }
 }

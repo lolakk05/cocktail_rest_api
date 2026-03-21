@@ -1,8 +1,14 @@
 import { PaginationDto } from '../pagination/pagination.dto';
 import { ApiPropertyOptional } from '@nestjs/swagger';
-import {IsArray, IsEnum, IsNumber, IsOptional, IsString} from 'class-validator';
+import {
+  IsArray,
+  IsEnum,
+  IsNumber,
+  IsOptional,
+  IsString,
+} from 'class-validator';
 import { Category } from '@prisma/client';
-import {Transform} from "class-transformer";
+import { Transform } from 'class-transformer';
 
 export class CocktailFilterDto extends PaginationDto {
   @ApiPropertyOptional({

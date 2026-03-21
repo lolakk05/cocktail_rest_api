@@ -27,7 +27,8 @@ class CreateRatioDto {
   @IsNotEmpty()
   amount: number;
   @ApiProperty({
-    example: 'ml',
+    enum: Category,
+    example: 'ML',
     description: 'Unit of ingredient we want to add to drink',
   })
   @IsNotEmpty()
