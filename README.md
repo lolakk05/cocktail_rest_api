@@ -53,7 +53,37 @@ This is a simple REST API for managing cocktail recipes. It allows you to create
    ```bash
    npm run start:dev
    ```
+   
+6. Additionaly, you can seed the database with initial data:
+   ```bash
+   npm run seed
+   ```
+   
+7. Live time DB monitoring:
+   ```bash
+   npx prisma studio
+   ```
+
+## 📂 Project Structure
+* `src/auth` - JWT strategy, guards, and authentication logic.
+* `src/users` - User management and profile logic.
+* `src/cocktails` - Core logic for managing recipes.
+* `src/database` - Prisma service and database seeding scripts.
+* `uploads/` - Local storage for ingredient and cocktail images.
 
 ## 📚 API Documentation
 API documentation is available at **http://localhost:3000/docs** after starting the server.
 
+## 🛠 API Architecture
+All endpoints are prefixed with `/api/v1` to ensure backward compatibility and follow industry standards for RESTful APIs.
+
+## 🔐 Role System
+The API implements two levels of access:
+* **User**: Can view profiles, manage their own data, and browse cocktails.
+* **Admin**: Full access, including deleting users and managing the entire ingredient database.
+
+## 🔑 Database Diagram
+
+![db_schema.png](db_schema.png)
+
+Author: Karol Stolarczyk
