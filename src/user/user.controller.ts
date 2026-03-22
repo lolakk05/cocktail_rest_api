@@ -85,8 +85,9 @@ export class UserController {
   })
   @ApiBearerAuth()
   @UseGuards(AuthGuard)
-  async findOne(@Param('id') id: string) {
-    const user = await this.userService.findOne(+id);
+  async findOne(@Param('id') id: string, @Req() req: RequestWithUser) {
+    const targetId = id === 'me' ? req.user.id : +id;
+    const user = await this.userService.findOne(targetId);
     if (!user) throw new NotFoundException('User not found');
     return new UserEntity(user);
   }
@@ -115,7 +116,7 @@ export class UserController {
     const targetId = id === 'me' ? req.user.id : +id;
 
     if (req.user.id !== targetId && req.user.role !== Role.ADMIN) {
-      throw new ForbiddenException('You update your own account');
+      throw new ForbiddenException('You can only update your own account');
     }
 
     return new UserEntity(

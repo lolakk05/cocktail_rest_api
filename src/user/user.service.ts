@@ -4,15 +4,20 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { DatabaseService } from '../database/database.service';
 import { DEFAULT_PAGE_SIZE } from '../pagination/utils/constants';
 import { UserFilterDto } from '../filters/user-filter.dto';
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class UserService {
   constructor(private database: DatabaseService) {}
 
-  create(createUserDto: CreateUserDto) {
+  async create(createUserDto: CreateUserDto) {
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(createUserDto.password, salt);
     return this.database.user.create({
       data: {
-        ...createUserDto,
+        password: hashedPassword,
+        login: createUserDto.login,
+        email: createUserDto.email,
       },
     });
   }

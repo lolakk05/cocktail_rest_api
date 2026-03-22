@@ -98,7 +98,7 @@ export class CocktailController {
     @Body() updateCocktailDto: UpdateCocktailDto,
     @Req() req: RequestWithUser,
   ) {
-    return this.cocktailService.update(+id, updateCocktailDto, req);
+    return this.cocktailService.update(+id, updateCocktailDto, req.user);
   }
 
   @ApiOperation({
