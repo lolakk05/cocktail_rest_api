@@ -108,7 +108,7 @@ describe('AuthService', () => {
 
     const result = await service.signIn(loginDto.login, loginDto.password);
 
-    expect(result).toEqual({ acces_token: mockToken });
+    expect(result).toEqual({ access_token: mockToken });
     expect(mockDBService.user.findUnique).toHaveBeenCalledWith({
       where: {
         login: loginDto.login,
