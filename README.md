@@ -75,7 +75,7 @@ This is a simple REST API for managing cocktail recipes. It allows you to create
 API documentation is available at **http://localhost:3000/docs** after starting the server.
 
 ## 🛠 API Architecture
-All endpoints are prefixed with `/api/v1` to ensure backward compatibility and follow industry standards for RESTful APIs.
+All endpoints are prefixed with `/api/v1` 
 
 ## 🔐 Role System
 The API implements two levels of access:
