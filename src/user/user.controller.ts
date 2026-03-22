@@ -12,6 +12,7 @@ import {
   UseInterceptors,
   ClassSerializerInterceptor,
   NotFoundException,
+  ForbiddenException,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -91,19 +92,6 @@ export class UserController {
     return new UserEntity(user);
   }
 
-  @ApiOperation({ summary: 'Update own profile' })
-  @ApiBearerAuth()
-  @UseGuards(AuthGuard)
-  @Patch('me')
-  async updateMe(
-    @Req() req: RequestWithUser,
-    @Body() updateUserDto: UpdateUserDto,
-  ) {
-    return new UserEntity(
-      await this.userService.update(req.user.id, updateUserDto),
-    );
-  }
-
   @Patch(':id')
   @ApiOperation({
     summary: 'Update data of user',
@@ -119,21 +107,19 @@ export class UserController {
     description: 'Validation failed (e.g. wrong type)',
   })
   @ApiBearerAuth()
-  @UseGuards(AuthGuard, RolesGuard)
-  @Roles(Role.ADMIN)
+  @UseGuards(AuthGuard)
   async update(
     @Param('id') id: string,
     @Body() updateUserDto: UpdateUserAdminDto,
+    @Req() req: RequestWithUser,
   ) {
-    return new UserEntity(await this.userService.update(+id, updateUserDto));
-  }
+    const targetId = id === 'me' ? req.user.id : +id;
 
-  @ApiOperation({ summary: 'Delete own profile' })
-  @ApiBearerAuth()
-  @UseGuards(AuthGuard)
-  @Delete('me')
-  async removeMe(@Req() req: RequestWithUser) {
-    return new UserEntity(await this.userService.remove(req.user.id));
+    if (req.user.id !== targetId && req.user.role !== Role.ADMIN) {
+      throw new ForbiddenException('You update your own account');
+    }
+
+    return new UserEntity(await this.userService.update(+id, updateUserDto));
   }
 
   @ApiOperation({
@@ -150,10 +136,14 @@ export class UserController {
     description: 'Validation failed (e.g. wrong type)',
   })
   @ApiBearerAuth()
-  @UseGuards(AuthGuard, RolesGuard)
-  @Roles(Role.ADMIN)
+  @UseGuards(AuthGuard)
   @Delete(':id')
-  async remove(@Param('id') id: string) {
+  async remove(@Param('id') id: string, @Req() req: RequestWithUser) {
+    const targetId = id === 'me' ? req.user.id : +id;
+
+    if (req.user.id !== targetId && req.user.role !== Role.ADMIN) {
+      throw new ForbiddenException('You can only delete your own account');
+    }
     return new UserEntity(await this.userService.remove(+id));
   }
 }
