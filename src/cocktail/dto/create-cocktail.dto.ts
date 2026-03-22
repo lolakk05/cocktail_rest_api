@@ -3,13 +3,12 @@ import {
   IsEnum,
   IsNotEmpty,
   IsNumber,
-  IsOptional,
   IsString,
   ValidateNested,
 } from 'class-validator';
-import { Transform, TransformFnParams, Type } from 'class-transformer';
+import { Type } from 'class-transformer';
 import { Category, Unit } from '@prisma/client';
-import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { ApiProperty } from '@nestjs/swagger';
 
 class CreateRatioDto {
   @ApiProperty({

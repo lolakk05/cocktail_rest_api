@@ -6,8 +6,6 @@ import { IngredientModule } from './ingredient/ingredient.module';
 import { CocktailModule } from './cocktail/cocktail.module';
 import { UserModule } from './user/user.module';
 import { AuthModule } from './auth/auth.module';
-import { RolesGuard } from './auth/roles.guard';
-import { APP_GUARD } from '@nestjs/core';
 import { ConfigModule } from '@nestjs/config';
 
 @Module({

@@ -1,7 +1,6 @@
 import { App } from 'supertest/types';
 import { UserData } from './test-interfaces';
 import request from 'supertest';
-import { Role } from '@prisma/client';
 import { INestApplication, ValidationPipe } from '@nestjs/common';
 import { AppModule } from '../src/app.module';
 import { Test } from '@nestjs/testing';
@@ -34,20 +33,6 @@ const adminData: UserData = {
   login: 'admin',
   email: 'admin@example.com',
   password: 'adminpassword',
-};
-
-const user1 = {
-  login: 'testuser',
-  email: 'user@example.com',
-  password: 'testpassword',
-  role: Role.USER,
-};
-
-const admin = {
-  login: 'admin',
-  email: 'admin@example.com',
-  password: 'adminpassword',
-  role: Role.ADMIN,
 };
 
 describe('UserController (e2e)', () => {

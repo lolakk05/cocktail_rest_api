@@ -8,7 +8,6 @@ import {
   Delete,
   Query,
   UseGuards,
-  Req,
   UseInterceptors,
   UploadedFile,
 } from '@nestjs/common';
@@ -25,7 +24,7 @@ import {
   ApiOperation,
 } from '@nestjs/swagger';
 import { IngredientFilterDto } from '../filters/ingredient-filter.dto';
-import { AuthGuard, type RequestWithUser } from '../auth/auth.guard';
+import { AuthGuard } from '../auth/auth.guard';
 import { Roles } from '../auth/roles.decorator';
 import { Role } from '@prisma/client';
 import { RolesGuard } from '../auth/roles.guard';

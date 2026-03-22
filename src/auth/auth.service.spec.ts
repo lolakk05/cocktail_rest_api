@@ -3,8 +3,6 @@ import { AuthService } from './auth.service';
 import { DatabaseService } from '../database/database.service';
 import { UserService } from '../user/user.service';
 import { JwtService } from '@nestjs/jwt';
-import e from 'express';
-
 jest.mock('bcrypt', () => ({
   hash: jest.fn().mockResolvedValue('hashedPassword'),
   compare: jest.fn().mockResolvedValue(true),
@@ -13,7 +11,6 @@ jest.mock('bcrypt', () => ({
 
 describe('AuthService', () => {
   let service: AuthService;
-  let database: DatabaseService;
 
   const mockDBService = {
     user: {
@@ -58,7 +55,6 @@ describe('AuthService', () => {
     }).compile();
 
     service = module.get<AuthService>(AuthService);
-    database = module.get<DatabaseService>(DatabaseService);
   });
 
   afterEach(() => {

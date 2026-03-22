@@ -1,7 +1,6 @@
 import {
   ConflictException,
   Injectable,
-  NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
 import { UserService } from '../user/user.service';
@@ -58,8 +57,8 @@ export class AuthService {
         password: hashedPassword,
       },
     });
-    const { password, ...userWithoutPassword } = newUser;
-
+    const userWithoutPassword = { ...newUser };
+    delete (userWithoutPassword as Partial<typeof newUser>).password;
     return userWithoutPassword;
   }
 }

@@ -2,7 +2,6 @@ import { Injectable } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { DatabaseService } from '../database/database.service';
-import { PaginationDto } from '../pagination/pagination.dto';
 import { DEFAULT_PAGE_SIZE } from '../pagination/utils/constants';
 import { UserFilterDto } from '../filters/user-filter.dto';
 
