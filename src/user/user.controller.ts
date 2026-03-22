@@ -118,7 +118,9 @@ export class UserController {
       throw new ForbiddenException('You update your own account');
     }
 
-    return new UserEntity(await this.userService.update(+id, updateUserDto));
+    return new UserEntity(
+      await this.userService.update(targetId, updateUserDto),
+    );
   }
 
   @ApiOperation({
@@ -143,6 +145,6 @@ export class UserController {
     if (req.user.id !== targetId && req.user.role !== Role.ADMIN) {
       throw new ForbiddenException('You can only delete your own account');
     }
-    return new UserEntity(await this.userService.remove(+id));
+    return new UserEntity(await this.userService.remove(targetId));
   }
 }

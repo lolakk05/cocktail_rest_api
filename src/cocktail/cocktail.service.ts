@@ -8,7 +8,7 @@ import { UpdateCocktailDto } from './dto/update-cocktail.dto';
 import { DatabaseService } from '../database/database.service';
 import { DEFAULT_PAGE_SIZE } from '../pagination/utils/constants';
 import { CocktailFilterDto } from '../filters/cocktail-filter.dto';
-import { JwtPayload } from '../auth/auth.guard';
+import { JwtPayload, RequestWithUser } from '../auth/auth.guard';
 
 @Injectable()
 export class CocktailService {
@@ -103,7 +103,28 @@ export class CocktailService {
     });
   }
 
-  update(id: number, updateCocktailDto: UpdateCocktailDto) {
+  async update(
+    id: number,
+    updateCocktailDto: UpdateCocktailDto,
+    user: JwtPayload,
+  ) {
+    const cocktail = await this.database.cocktail.findUnique({
+      where: {
+        cocktailId: id,
+      },
+    });
+
+    if (!cocktail) {
+      throw new NotFoundException('No cocktail with this id');
+    }
+
+    const isAdmin = user.role === 'ADMIN';
+    const isOwner = cocktail.createdBy === user.id;
+
+    if (!isAdmin && !isOwner) {
+      throw new UnauthorizedException('U can update only your own cocktails');
+    }
+
     return this.database.cocktail.update({
       where: {
         cocktailId: id,
